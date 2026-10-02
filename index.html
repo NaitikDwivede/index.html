@@ -206,15 +206,14 @@ document.getElementById("f").addEventListener("submit", async function(e) {
 
   document.getElementById("err").hidden = true;
 
-  const { data: insertedData, error } = await supabaseClient
+  const { error } = await supabaseClient
     .from("leads")
     .insert({
       name: name,
       business: business,
       phone: phone,
       message: message
-    })
-    .select();
+    });
 
   if (error) {
     console.error("SUPABASE ERROR:", error);
@@ -229,7 +228,7 @@ document.getElementById("f").addEventListener("submit", async function(e) {
     return;
   }
 
-  console.log("Lead saved:", insertedData);
+  console.log("Lead saved successfully");
 
   form.hidden = true;
   document.getElementById("ok").hidden = false;
