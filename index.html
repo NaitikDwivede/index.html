@@ -178,7 +178,7 @@ input:focus,textarea:focus,.btn:focus-visible,a:focus-visible{outline:3px solid 
 </footer>
 
 <script>
-const SUPABASE_URL = "https://naeqkquyjfsjrxmlolas.supabase.co";
+const SUPABASE_URL = "https://naeqkqujyfsjrxmlolas.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_bjnr-C97A0WN9WdL90EWWA_15a3lPcJ";
@@ -194,12 +194,11 @@ document.getElementById("f").addEventListener("submit", async function(e) {
   const form = this;
   const data = new FormData(form);
 
-  const name = data.get("n").trim();
-  const business = data.get("b").trim();
-  const phone = data.get("p").trim();
-  const message = data.get("m").trim();
+  const name = (data.get("n") || "").trim();
+  const business = (data.get("b") || "").trim();
+  const phone = (data.get("p") || "").trim();
+  const message = (data.get("m") || "").trim();
 
-  // Basic validation
   if (!name || !phone) {
     document.getElementById("err").hidden = false;
     return;
@@ -207,25 +206,31 @@ document.getElementById("f").addEventListener("submit", async function(e) {
 
   document.getElementById("err").hidden = true;
 
-  // Save lead to Supabase
-  const { error } = await supabaseClient
+  const { data: insertedData, error } = await supabaseClient
     .from("leads")
-    .insert([
-      {
-        name: name,
-        business: business,
-        phone: phone,
-        message: message
-      }
-    ]);
+    .insert({
+      name: name,
+      business: business,
+      phone: phone,
+      message: message
+    })
+    .select();
 
   if (error) {
-    console.error("Supabase error:", error);
-    alert("Something went wrong. Please try again.");
+    console.error("SUPABASE ERROR:", error);
+
+    alert(
+      "Supabase Error:\n\n" +
+      error.message +
+      "\n\nCode: " +
+      (error.code || "N/A")
+    );
+
     return;
   }
 
-  // Show success message
+  console.log("Lead saved:", insertedData);
+
   form.hidden = true;
   document.getElementById("ok").hidden = false;
 });
