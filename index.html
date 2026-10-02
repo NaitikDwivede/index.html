@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>XYZmedia – Make Your Brand Impossible to Ignore</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root{--bg:#fffaf5;--ink:#2a1245;--mut:#6b5a80;--card:#fff;--line:#f0e2f5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -177,11 +178,56 @@ input:focus,textarea:focus,.btn:focus-visible,a:focus-visible{outline:3px solid 
 </footer>
 
 <script>
-document.getElementById('f').addEventListener('submit',function(e){
+const SUPABASE_URL = "https://naeqkquyjfsjrxmlolas.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_bjnr-C97A0WN9WdL90EWWA_15a3lPcJ";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+document.getElementById("f").addEventListener("submit", async function(e) {
   e.preventDefault();
-  var d=new FormData(this);
-  if(!d.get('n').trim()||!d.get('p').trim()){document.getElementById('err').hidden=false;return}
-  this.hidden=true;document.getElementById('ok').hidden=false;
+
+  const form = this;
+  const data = new FormData(form);
+
+  const name = data.get("n").trim();
+  const business = data.get("b").trim();
+  const phone = data.get("p").trim();
+  const message = data.get("m").trim();
+
+  // Basic validation
+  if (!name || !phone) {
+    document.getElementById("err").hidden = false;
+    return;
+  }
+
+  document.getElementById("err").hidden = true;
+
+  // Save lead to Supabase
+  const { error } = await supabaseClient
+    .from("leads")
+    .insert([
+      {
+        name: name,
+        business: business,
+        phone: phone,
+        message: message
+      }
+    ]);
+
+  if (error) {
+    console.error("Supabase error:", error);
+    alert("Something went wrong. Please try again.");
+    return;
+  }
+
+  // Show success message
+  form.hidden = true;
+  document.getElementById("ok").hidden = false;
 });
 </script>
 </body>
